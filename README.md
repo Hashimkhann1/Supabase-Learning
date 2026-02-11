@@ -1,4 +1,4 @@
-# superbase_learning
+# Superbase Learning
 
 A new Flutter project.
 
