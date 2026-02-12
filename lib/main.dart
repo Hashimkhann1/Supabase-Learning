@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:superbase_learning/view/auth/sign_in_view/sign_in_view.dart';
 import 'package:superbase_learning/view/splash_view/splash_view.dart';
@@ -21,13 +22,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Supabase Learning',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'Supabase Learning',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        ),
+        home: SplashView(),
       ),
-      home: SplashView(),
     );
   }
 }
