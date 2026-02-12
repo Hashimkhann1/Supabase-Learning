@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:superbase_learning/view_model/auth_view_model/auth_view_model.dart';
 
-class SignUpView extends StatefulWidget {
+class SignUpView extends ConsumerStatefulWidget {
   const SignUpView({super.key});
 
   @override
-  State<SignUpView> createState() => _SignUpViewState();
+  ConsumerState<SignUpView> createState() => _SignUpViewState();
 }
 
-class _SignUpViewState extends State<SignUpView> with SingleTickerProviderStateMixin {
+class _SignUpViewState extends ConsumerState<SignUpView> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -357,43 +358,50 @@ class _SignUpViewState extends State<SignUpView> with SingleTickerProviderStateM
                               SizedBox(
                                 width: double.infinity,
                                 height: 56,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      if (!_acceptTerms) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Please accept the Terms & Conditions'),
-                                            backgroundColor: Colors.red.shade400,
-                                            behavior: SnackBarBehavior.floating,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        );
-                                        return;
-                                      }
+                                child: Consumer(
+                                  builder: (context,ref,child) {
 
-                                      AuthViewModel().signUpWithEmailPassword(context, _emailController.text, _confirmPasswordController.text);
+                                    final isLoading = ref.watch(loadingProvider);
 
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFF667eea),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Sign Up',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
+                                    return ElevatedButton(
+                                      onPressed: () {
+                                        if (_formKey.currentState!.validate()) {
+                                          if (!_acceptTerms) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Please accept the Terms & Conditions'),
+                                                backgroundColor: Colors.red.shade400,
+                                                behavior: SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                            );
+                                            return;
+                                          }
+
+                                          AuthViewModel().signUpWithEmailPassword(context, ref, _emailController.text, _confirmPasswordController.text);
+
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF667eea),
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                      ),
+                                      child: isLoading.emailLoading ? SizedBox(width: 20,height: 20, child: CircularProgressIndicator(color: Colors.white,)) : Text(
+                                        'Sign Up',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.2,
+                                        ),
+                                      ),
+                                    );
+                                  }
                                 ),
                               ),
                               const SizedBox(height: 24),
