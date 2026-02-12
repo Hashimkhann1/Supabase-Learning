@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:superbase_learning/view/auth/sign_up_view/sign_up_view.dart';
 import 'package:superbase_learning/view_model/auth_view_model/auth_view_model.dart';
 
-class SignInView extends StatefulWidget {
+class SignInView extends ConsumerStatefulWidget {
   const SignInView({super.key});
 
   @override
-  State<SignInView> createState() => _SignInViewState();
+  ConsumerState<SignInView> createState() => _SignInViewState();
 }
 
-class _SignInViewState extends State<SignInView> with SingleTickerProviderStateMixin {
+class _SignInViewState extends ConsumerState<SignInView> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -62,7 +63,7 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(16.0),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
@@ -127,7 +128,7 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
                           ],
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(32.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 32),
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -261,28 +262,35 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
                                 SizedBox(
                                   width: double.infinity,
                                   height: 56,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        AuthViewModel().signInWithPassword(context, _emailController.text, _passwordController.text);
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF667eea),
-                                      foregroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Sign In',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.2,
-                                      ),
-                                    ),
+                                  child: Consumer(
+                                    builder: (context,ref,child) {
+
+                                      final isLoading = ref.watch(loadingProvider);
+
+                                      return ElevatedButton(
+                                        onPressed: () {
+                                          if (_formKey.currentState!.validate()) {
+                                            AuthViewModel().signInWithPassword(context, ref, _emailController.text, _passwordController.text);
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFF667eea),
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                        child: isLoading.emailLoading ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white,)) : Text(
+                                          'Sign In',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.2,
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   ),
                                 ),
                                 const SizedBox(height: 24),
@@ -310,20 +318,27 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: () {
-                                          // Handle Google sign in
-                                        },
-                                        icon: Icon(Icons.g_mobiledata, size: 28),
-                                        label: Text('Google'),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.grey.shade700,
-                                          side: BorderSide(color: Colors.grey.shade300),
-                                          padding: const EdgeInsets.symmetric(vertical: 16),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                          ),
-                                        ),
+                                      child: Consumer(
+                                        builder: (context,ref,child) {
+
+                                          final isGoogleLoading = ref.watch(loadingProvider);
+
+                                          return OutlinedButton.icon(
+                                            onPressed: () {
+                                              AuthViewModel().signInWithGoogle(context, ref);
+                                            },
+                                            icon: Icon(Icons.g_mobiledata, size: 28),
+                                            label: isGoogleLoading.googleLoading ? CircularProgressIndicator(color: Colors.white,) : Text('Google'),
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: Colors.grey.shade700,
+                                              side: BorderSide(color: Colors.grey.shade300),
+                                              padding: const EdgeInsets.symmetric(vertical: 16),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                              ),
+                                            ),
+                                          );
+                                        }
                                       ),
                                     ),
                                     const SizedBox(width: 16),
